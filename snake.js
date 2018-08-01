@@ -4,6 +4,8 @@ document.addEventListener("keydown", keyDownHandler, false);
 let canvas, ctx;
 let snakeLength, snakeSpeed;
 let snakeArray;
+let applePos;
+let powerupPos;
 let gameWidth, gameHeight, gameScore;
 let direction;
 let ultiCount, ultiActive; 
@@ -11,6 +13,7 @@ let ultiCount, ultiActive;
 function setup() {
   gameWidth = 600;
   gameHeight = 600;
+  blockSize = 15;
   gameScore = 0;
   snakeLength = 200;
   snakeSpeed = 1;
@@ -29,6 +32,8 @@ function setup() {
   snakeArray.push({x:15,y:15});
   snakeArray.push({x:0,y:15});
 
+  applePos = {x:45,y:90};
+
 
   canvas = document.getElementById("canvas");
   canvas.setAttribute('width', gameWidth);
@@ -41,7 +46,6 @@ function showTitle () {
   ctx.font = "60px Tahoma";
   ctx.strokeText("SNAKE", 150, 250);
   ctx.fillStyle = "green";
-
 }
 
 function gameLoop() {
@@ -51,8 +55,10 @@ function gameLoop() {
   //check for wrap
 
   ctx.clearRect(0, 0, gameWidth, gameHeight);
+  
 
   let head = {x:snakeArray[0].x, y:snakeArray[0].y};
+  
   switch(direction) {
     case "u":
         head.y -= 15;
@@ -69,26 +75,66 @@ function gameLoop() {
 }
   snakeArray.unshift(head);
   snakeArray.pop();
+  console.log(checkCollision(head.x,head.y));
+
   
-  for (let i = 0; i < snakeArray.length; i++) {
+  ctx.fillStyle = "purple";
+  ctx.fillRect(snakeArray[0].x, snakeArray[0].y, 15, 15);
+  ctx.fillStyle = "green";
+  for (var i = 1; i < snakeArray.length; i++) {
     ctx.fillRect(snakeArray[i].x, snakeArray[i].y, 15, 15);
   }
+
   
+  
+  /*
+
+  ctx.fillStyle = "red";
+  ctx.fillRect(randX*blockSize, randY*blockSize, 15, 15);
+  */
+  //let pos = getRandomBlock();
+ 
+  ctx.fillRect(applePos.x, applePos.y, 15, 15);
+  ctx.beginPath();
+  ctx.arc(applePos.x+(blockSize/2),applePos.y+(blockSize/2),blockSize/4,0,2*Math.PI);
+  ctx.stroke();
+
+}
+let timer = setInterval(function (){ gameLoop(); },1000/1);
+
+
+function getRandomBlock () {
+  let randX = blockSize * (Math.floor(Math.random() * (gameWidth-15) / blockSize));
+  let randY = blockSize * (Math.floor(Math.random() * (gameHeight-15) / blockSize));
+  return {x:randX,y:randY};
 }
 
-let timer = setInterval(function (){ gameLoop(); },1000/20);
+function checkCollision (x,y) {
+  if (x === applePos.x && y === applePos.y) {
+    return "apple";
+  }
+
+  for (var i = 1; i < snakeArray.length; i++) {
+    if (x === snakeArray[i].x && y === snakeArray[i].y) {
+      if (i == 0) return "head";
+      return "body";
+    }
+  }
+  return;
+}
 
 function keyDownHandler(e) {
-  if(e.keyCode == 38 || e.keyCode == 119) {
+  console.log(e.which || e.keyCode);
+  if(e.keyCode == 38 || e.keyCode == 87) {
     if (direction!= "d") direction = "u";
   }
-  if(e.keyCode == 40 || e.keyCode == 115) {
+  if(e.keyCode == 40 || e.keyCode == 83) {
     if (direction!= "u") direction = "d";
   }
-  if(e.keyCode == 37 || e.keyCode == 97) {
+  if(e.keyCode == 37 || e.keyCode == 65) {
     if (direction!= "r") direction = "l";
   }
-  if(e.keyCode == 39 || e.keyCode == 100) {
+  if(e.keyCode == 39 || e.keyCode == 68) {
     if (direction!= "l") direction = "r";
   }
   if(e.keyCode == 113) {
