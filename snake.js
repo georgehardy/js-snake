@@ -8,7 +8,8 @@ let applePos;
 let powerupPos;
 let gameWidth, gameHeight, gameScore;
 let direction;
-let ultiCount, ultiActive; 
+let ultiCount, ultiActive;
+let walls;
 
 function setup() {
   gameWidth = 600;
@@ -19,6 +20,7 @@ function setup() {
   snakeSpeed = 1;
   snakeArray = [];
   direction = "r";
+  walls = false;
 
   snakeArray.push({x:135,y:15});
   snakeArray.push({x:120,y:15});
@@ -71,12 +73,25 @@ function gameLoop() {
         head.x -= 15;
         break;
     case "r":
-    head.x += 15;
-    break;
-}
+        head.x += 15;
+        break;
+      }
+
+  //console.log(head.x + "," + head.y);
+
+  if (walls) {
+    if (head.x > gameWidth || head.x < 0 || head.y > gameHeight || head.y < 0) console.log("gameover");
+  }
+  else {
+    if (head.x > gameWidth) head.x = 0;
+    if (head.x < 0) head.x = gameWidth;
+    if (head.y > gameHeight) head.y = 0;
+    if (head.y < 0) head.y = gameHeight;
+  }
+
   snakeArray.unshift(head);
   snakeArray.pop();
-  console.log(checkCollision(head.x,head.y));
+  //console.log(checkCollision(head.x,head.y));
 
   
   ctx.fillStyle = "purple";
