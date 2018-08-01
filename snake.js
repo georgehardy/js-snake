@@ -33,6 +33,7 @@ function setup() {
   snakeArray.push({x:0,y:15});
 
   applePos = {x:45,y:90};
+  powerupPos = {x:15,y:15};
 
 
   canvas = document.getElementById("canvas");
@@ -99,19 +100,30 @@ function gameLoop() {
   ctx.arc(applePos.x+(blockSize/2),applePos.y+(blockSize/2),blockSize/4,0,2*Math.PI);
   ctx.stroke();
 
+  let pup = getRandomBlock();
+  //ctx.fillRect(pup.x, pup.y, 15, 15);
+  ctx.beginPath();
+  ctx.arc(pup.x+(blockSize/2),pup.y+(blockSize/2),blockSize/4,0,2*Math.PI);
+  ctx.stroke();
+
 }
-let timer = setInterval(function (){ gameLoop(); },1000/1);
+let timer = setInterval(function (){ gameLoop(); },1000/10);
 
 
 function getRandomBlock () {
   let randX = blockSize * (Math.floor(Math.random() * (gameWidth-15) / blockSize));
   let randY = blockSize * (Math.floor(Math.random() * (gameHeight-15) / blockSize));
-  return {x:randX,y:randY};
+  if (checkCollision(randX,randY) == null) return {x:randX,y:randY};
+  return getRandomBlock();
 }
 
 function checkCollision (x,y) {
   if (x === applePos.x && y === applePos.y) {
     return "apple";
+  }
+
+  if (x === powerupPos.x && y === powerupPos.y) {
+    return "powerup";
   }
 
   for (var i = 1; i < snakeArray.length; i++) {
