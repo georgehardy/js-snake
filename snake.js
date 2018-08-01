@@ -4,17 +4,17 @@ document.addEventListener("keydown", keyDownHandler, false);
 let canvas, ctx;
 let snakeLength, snakeSpeed;
 let snakeArray;
-let applePos;
-let powerupPos;
+let applePos = [];
+let powerupPos = [];
 let gameWidth, gameHeight, gameScore;
 let direction;
 let ultiCount, ultiActive;
 let walls;
 
 function setup() {
-  gameWidth = 600;
-  gameHeight = 600;
-  blockSize = 15;
+  gameWidth = 500;
+  gameHeight = 400;
+  blockSize = 20;
   gameScore = 0;
   snakeLength = 200;
   snakeSpeed = 1;
@@ -22,33 +22,38 @@ function setup() {
   direction = "r";
   walls = false;
 
-  snakeArray.push({x:135,y:15});
-  snakeArray.push({x:120,y:15});
-  snakeArray.push({x:105,y:15});
-  snakeArray.push({x:90,y:15});
-  snakeArray.push({x:75,y:15});
-
-  snakeArray.push({x:60,y:15});
-  snakeArray.push({x:45,y:15});
-  snakeArray.push({x:30,y:15});
-  snakeArray.push({x:15,y:15});
-  snakeArray.push({x:0,y:15});
-
-  applePos = {x:45,y:90};
-  powerupPos = {x:15,y:15};
-
+  //snakeArray.push({ x: 15, y: 15 });
+  snakeArray.push({ x: 0, y: 0 });
 
   canvas = document.getElementById("canvas");
   canvas.setAttribute('width', gameWidth);
   canvas.setAttribute('height', gameHeight);
   ctx = canvas.getContext("2d");
+
+  applePos = getRandomBlock();
 }
 
-function showTitle () {
+function showTitle() {
   setup();
   ctx.font = "60px Tahoma";
   ctx.strokeText("SNAKE", 150, 250);
   ctx.fillStyle = "green";
+}
+
+function drawSnake() {
+  ctx.fillStyle = "purple";
+  ctx.fillRect(snakeArray[0].x, snakeArray[0].y, blockSize, blockSize);
+  ctx.fillStyle = "green";
+  for (let i = 1; i < snakeArray.length; i++) {
+    ctx.fillRect(snakeArray[i].x, snakeArray[i].y, blockSize, blockSize);
+  }
+}
+
+function drawApple() {
+  ctx.fillRect(applePos.x, applePos.y, blockSize, blockSize);
+  ctx.beginPath();
+  ctx.arc(applePos.x + (blockSize / 2), applePos.y + (blockSize / 2), blockSize / 4, 0, 2 * Math.PI);
+  ctx.stroke();
 }
 
 function gameLoop() {
@@ -58,26 +63,38 @@ function gameLoop() {
   //check for wrap
 
   ctx.clearRect(0, 0, gameWidth, gameHeight);
-  
+  let removeTail = true;
+  let head = { x: snakeArray[0].x, y: snakeArray[0].y };
 
-  let head = {x:snakeArray[0].x, y:snakeArray[0].y};
-  
-  switch(direction) {
+  switch (checkCollision(head.x, head.y)) {
+    case "body":
+      console.log("eatsnake");
+      showTitle();
+      break;
+    case "apple":
+      gameScore += 5;
+      applePos = getRandomBlock();
+      removeTail = false;
+      break;
+    case "powerup":
+      removeTail = false;
+      break;
+  }
+
+  switch (direction) {
     case "u":
-        head.y -= 15;
-        break;
+      head.y -= blockSize;
+      break;
     case "d":
-        head.y += 15;
-        break;
+      head.y += blockSize;
+      break;
     case "l":
-        head.x -= 15;
-        break;
+      head.x -= blockSize;
+      break;
     case "r":
-        head.x += 15;
-        break;
-      }
-
-  //console.log(head.x + "," + head.y);
+      head.x += blockSize;
+      break;
+  }
 
   if (walls) {
     if (head.x > gameWidth || head.x < 0 || head.y > gameHeight || head.y < 0) console.log("gameover");
@@ -90,49 +107,43 @@ function gameLoop() {
   }
 
   snakeArray.unshift(head);
-  snakeArray.pop();
-  //console.log(checkCollision(head.x,head.y));
+  if (removeTail) snakeArray.pop();
+  //console.log(head.x + "," + head.y);
 
-  
-  ctx.fillStyle = "purple";
-  ctx.fillRect(snakeArray[0].x, snakeArray[0].y, 15, 15);
-  ctx.fillStyle = "green";
-  for (var i = 1; i < snakeArray.length; i++) {
-    ctx.fillRect(snakeArray[i].x, snakeArray[i].y, 15, 15);
-  }
 
-  
-  
+
+
+  drawSnake();
+  drawApple();
+
+
   /*
 
   ctx.fillStyle = "red";
   ctx.fillRect(randX*blockSize, randY*blockSize, 15, 15);
   */
   //let pos = getRandomBlock();
- 
-  ctx.fillRect(applePos.x, applePos.y, 15, 15);
-  ctx.beginPath();
-  ctx.arc(applePos.x+(blockSize/2),applePos.y+(blockSize/2),blockSize/4,0,2*Math.PI);
-  ctx.stroke();
+
+
 
   let pup = getRandomBlock();
   //ctx.fillRect(pup.x, pup.y, 15, 15);
   ctx.beginPath();
-  ctx.arc(pup.x+(blockSize/2),pup.y+(blockSize/2),blockSize/4,0,2*Math.PI);
+  ctx.arc(pup.x + (blockSize / 2), pup.y + (blockSize / 2), blockSize / 4, 0, 2 * Math.PI);
   ctx.stroke();
 
 }
-let timer = setInterval(function (){ gameLoop(); },1000/10);
+let timer = setInterval(function () { gameLoop(); }, 1000 / 20);
 
 
-function getRandomBlock () {
-  let randX = blockSize * (Math.floor(Math.random() * (gameWidth-15) / blockSize));
-  let randY = blockSize * (Math.floor(Math.random() * (gameHeight-15) / blockSize));
-  if (checkCollision(randX,randY) == null) return {x:randX,y:randY};
+function getRandomBlock() {
+  let randX = blockSize * (Math.floor(Math.random() * (gameWidth - blockSize) / blockSize));
+  let randY = blockSize * (Math.floor(Math.random() * (gameHeight - blockSize) / blockSize));
+  if (checkCollision(randX, randY) == null) return { x: randX, y: randY };
   return getRandomBlock();
 }
 
-function checkCollision (x,y) {
+function checkCollision(x, y) {
   if (x === applePos.x && y === applePos.y) {
     return "apple";
   }
@@ -147,25 +158,25 @@ function checkCollision (x,y) {
       return "body";
     }
   }
-  return;
+  return null;
 }
 
 function keyDownHandler(e) {
   console.log(e.which || e.keyCode);
-  if(e.keyCode == 38 || e.keyCode == 87) {
-    if (direction!= "d") direction = "u";
+  if (e.keyCode == 38 || e.keyCode == 87) {
+    if (direction != "d") direction = "u";
   }
-  if(e.keyCode == 40 || e.keyCode == 83) {
-    if (direction!= "u") direction = "d";
+  if (e.keyCode == 40 || e.keyCode == 83) {
+    if (direction != "u") direction = "d";
   }
-  if(e.keyCode == 37 || e.keyCode == 65) {
-    if (direction!= "r") direction = "l";
+  if (e.keyCode == 37 || e.keyCode == 65) {
+    if (direction != "r") direction = "l";
   }
-  if(e.keyCode == 39 || e.keyCode == 68) {
-    if (direction!= "l") direction = "r";
+  if (e.keyCode == 39 || e.keyCode == 68) {
+    if (direction != "l") direction = "r";
   }
-  if(e.keyCode == 113) {
-   // ultiActivate(); 
+  if (e.keyCode == 113) {
+    // ultiActivate(); 
   }
   console.log(direction);
 }
