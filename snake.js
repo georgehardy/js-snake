@@ -80,16 +80,16 @@ let timer = setInterval(function (){ gameLoop(); },1000/20);
 
 function keyDownHandler(e) {
   if(e.keyCode == 38 || e.keyCode == 119) {
-    direction = "u";
+    if (direction!= "d") direction = "u";
   }
   if(e.keyCode == 40 || e.keyCode == 115) {
-    direction = "d";
+    if (direction!= "u") direction = "d";
   }
   if(e.keyCode == 37 || e.keyCode == 97) {
-    direction = "l";
+    if (direction!= "r") direction = "l";
   }
   if(e.keyCode == 39 || e.keyCode == 100) {
-    direction = "r";
+    if (direction!= "l") direction = "r";
   }
   if(e.keyCode == 113) {
    // ultiActivate(); 
