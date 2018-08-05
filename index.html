@@ -16,8 +16,26 @@
   <div>
       <canvas id="canvas"></canvas>
   </div>
-  <div>
-      Settings
+  <div>Score: <section id="score"></section></div>
+  <div>Powerup: <section id="powerup"></section></div>
+      Settings:
+    <label for="difficulty">Difficulty:</label>
+    <select id="difficulty">
+        <option value=10>Easy</option>
+        <option value=20 selected>Normal</option>
+        <option value=30>Hard</option>
+    </select>
+    <label for="walls">Walls:</label>
+    <select id="walls">
+        <option value="true">On</option>
+        <option value="false" selected>Off</option>
+    </select>
+    <label for="framerate">Framerate:</label>
+    <select id="framerate">
+        <option value=30>30fps</option>
+        <option value=60 selected>60fps</option>
+        <option value=144>144fps</option>
+    </select>
   </div>
 </body>
 </html>

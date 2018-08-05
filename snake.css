@@ -9,5 +9,14 @@ a, i {
 }
 
 canvas {
+	
+	color: #f72bf7;
+}
+
+.solid {
+	border:2px solid #1c8154;
+}
+
+.dashed {
 	border:2px dashed #1c8154;
 }
