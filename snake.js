@@ -10,6 +10,10 @@ let gameWidth, gameHeight, gameScore;
 let direction;
 let ultiCount, ultiActive;
 let walls;
+let powerTime;
+
+let gameTimer = setInterval(function () { gameLoop(); }, 1000 / 60);
+let powerTimer = setInterval(function () { powerTime--; }, 200);
 
 function setup() {
   gameWidth = 500;
@@ -21,9 +25,11 @@ function setup() {
   snakeArray = [];
   direction = "r";
   walls = false;
+  powerTime = 20;
+  clearInterval(powerTimer);
 
-  //snakeArray.push({ x: 15, y: 15 });
-  snakeArray.push({ x: 0, y: 0 });
+  snakeArray.push({ x: 200, y: 200 });
+  snakeArray.push({ x: 180, y: 200 });
 
   canvas = document.getElementById("canvas");
   canvas.setAttribute('width', gameWidth);
@@ -41,19 +47,39 @@ function showTitle() {
 }
 
 function drawSnake() {
-  ctx.fillStyle = "purple";
+  ctx.fillStyle = "#2b8a0e";
   ctx.fillRect(snakeArray[0].x, snakeArray[0].y, blockSize, blockSize);
-  ctx.fillStyle = "green";
+  ctx.fillStyle = "#3fb41c";
   for (let i = 1; i < snakeArray.length; i++) {
     ctx.fillRect(snakeArray[i].x, snakeArray[i].y, blockSize, blockSize);
   }
 }
 
 function drawApple() {
-  ctx.fillRect(applePos.x, applePos.y, blockSize, blockSize);
+
   ctx.beginPath();
   ctx.arc(applePos.x + (blockSize / 2), applePos.y + (blockSize / 2), blockSize / 4, 0, 2 * Math.PI);
+  ctx.fillStyle = "red";
+  ctx.fill();
+  ctx.lineWidth=0.5;
   ctx.stroke();
+}
+
+function drawPowerup() {
+  
+  ctx.save();
+  ctx.fillStyle = "#f72bf7";
+  ctx.translate(powerupPos.x + (blockSize / 2), powerupPos.y + (blockSize / 2));
+  ctx.rotate(Math.PI / 4);
+  ctx.scale(0.5,0.5)
+  ctx.fillRect(-blockSize/2, -blockSize/2, blockSize, blockSize);
+  ctx.strokeRect(-blockSize/2, -blockSize/2, blockSize, blockSize);
+
+  ctx.restore();
+}
+
+function spawnPowerup() {
+  if (Math.floor((Math.random() * 100) + 1) > 98) powerupPos = getRandomBlock();
 }
 
 function gameLoop() {
@@ -77,6 +103,7 @@ function gameLoop() {
       removeTail = false;
       break;
     case "powerup":
+      console.log("powerup");
       removeTail = false;
       break;
   }
@@ -97,43 +124,29 @@ function gameLoop() {
   }
 
   if (walls) {
-    if (head.x > gameWidth || head.x < 0 || head.y > gameHeight || head.y < 0) console.log("gameover");
+    if (head.x > gameWidth || head.x < 0 || head.y > gameHeight || head.y < 0) showTitle();
   }
   else {
-    if (head.x > gameWidth) head.x = 0;
+    if (head.x > gameWidth - blockSize) head.x = 0;
     if (head.x < 0) head.x = gameWidth;
-    if (head.y > gameHeight) head.y = 0;
+    if (head.y > gameHeight - blockSize) head.y = 0;
     if (head.y < 0) head.y = gameHeight;
   }
 
   snakeArray.unshift(head);
   if (removeTail) snakeArray.pop();
-  //console.log(head.x + "," + head.y);
 
+  
 
-
-
+  spawnPowerup();
   drawSnake();
   drawApple();
+  drawPowerup();
+  console.log(powerTime);
 
-
-  /*
-
-  ctx.fillStyle = "red";
-  ctx.fillRect(randX*blockSize, randY*blockSize, 15, 15);
-  */
-  //let pos = getRandomBlock();
-
-
-
-  let pup = getRandomBlock();
-  //ctx.fillRect(pup.x, pup.y, 15, 15);
-  ctx.beginPath();
-  ctx.arc(pup.x + (blockSize / 2), pup.y + (blockSize / 2), blockSize / 4, 0, 2 * Math.PI);
-  ctx.stroke();
 
 }
-let timer = setInterval(function () { gameLoop(); }, 1000 / 20);
+
 
 
 function getRandomBlock() {

@@ -2,12 +2,12 @@ body {
 	margin: 25px;
 	font-family: 'Russo One', sans-serif;
 	color: rgb(218, 216, 216);
-	background-color: rgb(218, 216, 216);
+	background-color: rgb(210, 241, 214);
 }
 a, i {
 	color: rgb(92, 91, 91);
 }
 
 canvas {
-	border:2px solid #ff0000;
+	border:2px dashed #1c8154;
 }
