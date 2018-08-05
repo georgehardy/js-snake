@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", showTitle);
+document.addEventListener("DOMContentLoaded", loadFont);
 document.addEventListener("keydown", keyDownHandler, false);
 
 let canvas, ctx;
@@ -10,6 +10,8 @@ let powerupTimerActive = false;
 let powerupInterval = 5000;
 let powerupTime = 800;
 let powerupValue;
+let powerupCharge;
+let ultimateActive;
 
 let snakeLength, snakeSpeed;
 let snakeArray;
@@ -26,20 +28,27 @@ let direction;
 let gameTimer;
 let drawTimer;
 let powerTimer;
+let ultiTimer;
 
+function loadFont () {
+  document.fonts.load('10pt "Russo One"').then(showTitle);
+}
 
 function showTitle() {
-  gameInProgress = false;
-  settings();
   setup();
-  ctx.font = "60px Tahoma";
+  ctx.font = "100px Russo One";
   ctx.textAlign = "center";  
-  ctx.strokeText("SNAKE", gameWidth/2, 100);
-  ctx.font = "30px Tahoma";
-  ctx.strokeText("Press space to play", gameWidth/2, 200);
+  ctx.strokeText("SNAKE", gameWidth/2, 125);
+
+  ctx.font = "22px Russo One";
+  ctx.fillText("Use arrows or WASD to move", gameWidth/2, 225);
+  ctx.fillText("Press Q to activate ultimate", gameWidth/2, 275);
+  ctx.font = "40px Russo One";
+  ctx.strokeText("Press space to start", gameWidth/2, 350);
 }
 
 function settings() {
+  console.log("test");
   difficulty = document.getElementById("difficulty").value;
   walls = document.getElementById("walls").value;
   framerate = document.getElementById("framerate").value;
@@ -48,9 +57,10 @@ function settings() {
 }
 
 function startGame(){
+  settings();
   gameTimer = setInterval(function () { gameLoop(); }, 1000 / difficulty);
   drawTimer = setInterval(function () { drawLoop(); }, 1000 / framerate);
-  
+  document.getElementById("settings").classList = "hidden";
   gameInProgress = true;
 }
 
@@ -58,11 +68,20 @@ function gameOver() {
   clearInterval(gameTimer);
   clearInterval(drawTimer);
   clearInterval(powerTimer);
-  showTitle();
+  setup();
+  ctx.font = "70px Russo One";
+  ctx.textAlign = "center";  
+  ctx.strokeText("GAME OVER", gameWidth/2, 100);
+  ctx.font = "30px Russo One";
+  ctx.fillText("Score: " + gameScore, gameWidth/2, 200);
+  ctx.fillText("High Score: " + gameScore, gameWidth/2, 250);
+  ctx.font = "35px Russo One";
+  ctx.strokeText("Press space to play again", gameWidth/2, 350);
 }
 
 function setup() {
-  
+  document.getElementById("settings").classList = "";
+  gameInProgress = false;
   gameWidth = 500;
   gameHeight = 400;
   blockSize = 20;
@@ -71,6 +90,8 @@ function setup() {
   direction = "r";
   powerupValue = 0;
   powerupTimerActive = false;
+  powerupCharge = 0;
+  ultimateActive = false;
 
   snakeArray.push({ x: 200, y: 200 });
   snakeArray.push({ x: 180, y: 200 });
@@ -144,6 +165,15 @@ function checkPowerup() {
   if (!powerupTimerActive) activatePowerupTimer();
   if (powerupTimerActive && powerupValue > 0) updatePowerup();
 }
+
+function activateUltimate() {
+
+}
+
+function revertUltimate() {
+  
+}
+
 function gameLoop() {
   //check dot collision
   //randomly generate bonus pickup
@@ -162,12 +192,13 @@ function gameLoop() {
       gameOver();
       break;
     case "apple":
-      gameScore += 5;
+      gameScore += 10;
       applePos = getRandomBlock();
       removeTail = false;
       break;
     case "powerup":
       gameScore += 50;
+      if (powerupCharge < 100) powerupCharge += 20;
       removePowerup();
       removeTail = false;
       break;
@@ -209,16 +240,24 @@ function drawLoop() {
   drawSnake();
   drawApple();
   drawPowerup();
-  drawScore();
+  drawHUD();
+  
   //console.log(powerTime);
 
 
 }
 
-function drawScore() {
-  document.getElementById("score").innerHTML = gameScore;
-  if (powerupValue > 0) document.getElementById("powerup").innerHTML = powerupValue;
-  else document.getElementById("powerup").innerHTML = "ff";
+function drawHUD() {
+  ctx.fillStyle= "#0b4b35";
+  ctx.font = "15px Trebuchet MS";
+  ctx.textAlign = "left";  
+  ctx.fillText(gameScore, 10, 20);
+  ctx.textAlign = "right";
+  if (powerupValue > 0) ctx.fillText(powerupValue, gameWidth - 10, 20);
+  ctx.textAlign = "left";
+  if (powerupCharge == 100) ctx.fillStyle= "red";
+  ctx.fillText(powerupCharge+"%", 10, gameHeight - 10);
+
 }
 
 
@@ -263,7 +302,7 @@ function keyDownHandler(e) {
     if (direction != "l") direction = "r";
   }
   if (e.keyCode == 113) {
-    // ultiActivate(); 
+    if (powerupCharge == 100) activateUltimate(); 
   }
   if (e.keyCode == 32) {
     if(!gameInProgress) startGame(); 

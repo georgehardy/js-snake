@@ -1,22 +1,26 @@
 body {
 	margin: 25px;
 	font-family: 'Russo One', sans-serif;
-	color: rgb(218, 216, 216);
-	background-color: rgb(210, 241, 214);
+	color: "#000";
+	background-color: rgb(218, 216, 216);
 }
 a, i {
 	color: rgb(92, 91, 91);
 }
 
 canvas {
-	
+	background-color: rgb(194, 226, 199);
 	color: #f72bf7;
 }
 
 .solid {
-	border:2px solid #1c8154;
+	border:3px solid #0b4b35;
 }
 
 .dashed {
-	border:2px dashed #1c8154;
+	border:3px dashed #0b4b35;
+}
+
+.hidden {
+	display:none;
 }

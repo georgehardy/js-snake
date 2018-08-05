@@ -14,11 +14,14 @@
 
 <body>
   <div>
-      <canvas id="canvas"></canvas>
+      <canvas id="canvas" class="dashed"></canvas>
   </div>
-  <div>Score: <section id="score"></section></div>
-  <div>Powerup: <section id="powerup"></section></div>
-      Settings:
+  <div id="display" class="hidden">
+    <p>Score: <text id="score"></text>
+    <p>Ultimate: <text id="ultimate"></text></p>
+    
+</div>
+  <div id="settings">
     <label for="difficulty">Difficulty:</label>
     <select id="difficulty">
         <option value=10>Easy</option>
