@@ -1,10 +1,11 @@
-document.addEventListener("DOMContentLoaded", loadFont);
+document.addEventListener("DOMContentLoaded", loadCanvas);
 document.addEventListener("keydown", keyDownHandler, false);
 
 let canvas, ctx;
 let difficulty, walls, framerate;
 let gameInProgress;
 let gameScore;
+let highScore = 0;
 
 let powerupTimerActive = false;
 let powerupInterval = 5000;
@@ -14,12 +15,13 @@ let powerupCharge;
 let ultimateActive;
 
 let snakeLength, snakeSpeed;
-let snakeArray;
-let offScreen = {x:-50,y:-50}
+let snakeArray = [];
+let offScreen = {x:-50,y:-50};
 let applePos = [];
 let powerupPos = offScreen;
 
-let gameWidth, gameHeight;
+let gameWidth = 500;
+let gameHeight = 400;
 let direction;
 //let ultiCount, ultiActive;
 
@@ -30,7 +32,12 @@ let drawTimer;
 let powerTimer;
 let ultiTimer;
 
-function loadFont () {
+function loadCanvas () {
+  
+  canvas = document.getElementById("canvas");
+  canvas.setAttribute('width', gameWidth);
+  canvas.setAttribute('height', gameHeight);
+  ctx = canvas.getContext("2d");
   document.fonts.load('10pt "Russo One"').then(showTitle);
 }
 
@@ -68,15 +75,17 @@ function gameOver() {
   clearInterval(gameTimer);
   clearInterval(drawTimer);
   clearInterval(powerTimer);
-  setup();
+  if (gameScore > highScore) highScore = gameScore;
+  ctx.clearRect(0, 0, gameWidth, gameHeight);
   ctx.font = "70px Russo One";
   ctx.textAlign = "center";  
   ctx.strokeText("GAME OVER", gameWidth/2, 100);
   ctx.font = "30px Russo One";
   ctx.fillText("Score: " + gameScore, gameWidth/2, 200);
-  ctx.fillText("High Score: " + gameScore, gameWidth/2, 250);
+  ctx.fillText("High Score: " + highScore, gameWidth/2, 250);
   ctx.font = "35px Russo One";
   ctx.strokeText("Press space to play again", gameWidth/2, 350);
+  setup();
 }
 
 function setup() {
@@ -87,7 +96,7 @@ function setup() {
   blockSize = 20;
   gameScore = 0;
   snakeArray = [];
-  direction = "r";
+  direction = "l";
   powerupValue = 0;
   powerupTimerActive = false;
   powerupCharge = 0;
@@ -96,10 +105,6 @@ function setup() {
   snakeArray.push({ x: 200, y: 200 });
   snakeArray.push({ x: 180, y: 200 });
 
-  canvas = document.getElementById("canvas");
-  canvas.setAttribute('width', gameWidth);
-  canvas.setAttribute('height', gameHeight);
-  ctx = canvas.getContext("2d");
 
   applePos = getRandomBlock();
 }
@@ -107,8 +112,10 @@ function setup() {
 
 function drawSnake() {
   ctx.fillStyle = "#2b8a0e";
+  if (ultimateActive) ctx.fillStyle = "#d89b00";
   ctx.fillRect(snakeArray[0].x, snakeArray[0].y, blockSize, blockSize);
   ctx.fillStyle = "#3fb41c";
+  if (ultimateActive) ctx.fillStyle = "#ffb800";
   for (let i = 1; i < snakeArray.length; i++) {
     ctx.fillRect(snakeArray[i].x, snakeArray[i].y, blockSize, blockSize);
   }
@@ -166,13 +173,6 @@ function checkPowerup() {
   if (powerupTimerActive && powerupValue > 0) updatePowerup();
 }
 
-function activateUltimate() {
-
-}
-
-function revertUltimate() {
-  
-}
 
 function gameLoop() {
   //check dot collision
@@ -181,15 +181,18 @@ function gameLoop() {
   //check for wrap
 
   let removeTail = true;
-  let head = { x: snakeArray[0].x, y: snakeArray[0].y };
+  head = { x: snakeArray[0].x, y: snakeArray[0].y };
 
 
   checkPowerup();
-  
+
+  if (ultimateActive && powerupCharge > 0) powerupCharge -= 1;
+  if (ultimateActive && powerupCharge == 0) ultimateActive = false;
+
   switch (checkCollision(head.x, head.y)) {
     case "body":
       console.log("eatsnake");
-      gameOver();
+      if (!ultimateActive) gameOver();
       break;
     case "apple":
       gameScore += 10;
@@ -219,8 +222,11 @@ function gameLoop() {
       break;
   }
 
-  if (walls == "true") {
-    if (head.x > gameWidth || head.x < 0 || head.y > gameHeight || head.y < 0) gameOver();
+  if (walls == "true" && !ultimateActive) {
+    if (head.x > gameWidth || head.x < 0 || head.y > gameHeight || head.y < 0) {
+      console.log("hitwall"+head.x+","+head.y);
+      gameOver();
+    }
   }
   else {
     if (head.x > gameWidth - blockSize) head.x = 0;
@@ -288,7 +294,7 @@ function checkCollision(x, y) {
 }
 
 function keyDownHandler(e) {
-  //console.log(e.which || e.keyCode);
+  console.log(e.which || e.keyCode);
   if (e.keyCode == 38 || e.keyCode == 87) {
     if (direction != "d") direction = "u";
   }
@@ -301,8 +307,8 @@ function keyDownHandler(e) {
   if (e.keyCode == 39 || e.keyCode == 68) {
     if (direction != "l") direction = "r";
   }
-  if (e.keyCode == 113) {
-    if (powerupCharge == 100) activateUltimate(); 
+  if (e.keyCode == 81) {
+    if (powerupCharge == 100) ultimateActive = true; 
   }
   if (e.keyCode == 32) {
     if(!gameInProgress) startGame(); 

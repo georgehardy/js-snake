@@ -13,15 +13,12 @@
 </head>
 
 <body>
-  <div>
+  <div id="container">
+    <div>
       <canvas id="canvas" class="dashed"></canvas>
   </div>
-  <div id="display" class="hidden">
-    <p>Score: <text id="score"></text>
-    <p>Ultimate: <text id="ultimate"></text></p>
-    
-</div>
   <div id="settings">
+      <p>
     <label for="difficulty">Difficulty:</label>
     <select id="difficulty">
         <option value=10>Easy</option>
@@ -39,6 +36,8 @@
         <option value=60 selected>60fps</option>
         <option value=144>144fps</option>
     </select>
+</p>
+  </div>
   </div>
 </body>
 </html>
